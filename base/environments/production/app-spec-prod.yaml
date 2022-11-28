@@ -99,7 +99,7 @@ metadata:
     kubernetes.io/ingress.class: nginx-public
 spec:
   rules:
-    - host: "shinyapp.prod.ncsadev.ue1.ptc.dev"
+    - host: "shinyappprod.ncsadev.ue1.ptc.dev"
       http:
         paths:
           - path: /
