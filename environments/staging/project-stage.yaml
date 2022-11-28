@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: staging
+  namespace: argo-cd
+  finalizers: 
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Staging Environment
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: stage
+    server: https://kubernetes.default.svc
+  - namespace: argo-cd
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'

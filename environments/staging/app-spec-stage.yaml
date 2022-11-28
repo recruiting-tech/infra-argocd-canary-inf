@@ -1,0 +1,111 @@
+---
+# Source: r-app/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: shiny-r-app
+  labels:
+    helm.sh/chart: r-app-0.1.0
+    app.kubernetes.io/name: r-app
+    app.kubernetes.io/instance: shiny
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/environment: staging
+---
+# Source: r-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: shiny-r-app
+  labels:
+    helm.sh/chart: r-app-0.1.0
+    app.kubernetes.io/name: r-app
+    app.kubernetes.io/instance: shiny
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/environment: staging
+spec:
+  type: ClusterIP
+  ports:
+    - port: 443
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: r-app
+    app.kubernetes.io/instance: shiny
+---
+# Source: r-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shiny-r-app
+  labels:
+    helm.sh/chart: r-app-0.1.0
+    app.kubernetes.io/name: r-app
+    app.kubernetes.io/instance: shiny
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/environment: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: r-app
+      app.kubernetes.io/instance: shiny
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: r-app
+        app.kubernetes.io/instance: shiny
+    spec:
+      serviceAccountName: shiny-r-app
+      securityContext:
+        {}
+      containers:
+        - name: r-app
+          securityContext:
+            {}
+          image: "601730047828.dkr.ecr.us-east-1.amazonaws.com/eks-deployment-examples:628fbd9"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3838
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+---
+# Source: r-app/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shiny-r-app
+  labels:
+    helm.sh/chart: r-app-0.1.0
+    app.kubernetes.io/name: r-app
+    app.kubernetes.io/instance: shiny
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/environment: staging
+  annotations:
+    kubernetes.io/ingress.class: nginx-public
+spec:
+  rules:
+    - host: "shinyapp.stage.ncsadev.ue1.ptc.dev"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shiny-r-app
+                port:
+                  number: 443

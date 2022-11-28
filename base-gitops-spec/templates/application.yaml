@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ include "r-app.fullname" . }}
+  namespace: argo-cd
+spec:
+  project: {{ .Values.environment }}
+  source:
+    repoURL: {{ .Values.application.repoUrl }}
+    targetRevision: HEAD
+    path: base
+    helm:
+      version: v3
+      valueFiles:
+        - environments/{{ .Values.environment }}/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ .Values.application.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+    - Validate=true
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
