@@ -23,7 +23,7 @@ image:
   repository: 601730047828.dkr.ecr.us-east-1.amazonaws.com/eks-deployment-examples
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: dev-e9d6556
+  tag: v0.1.0
 
 imagePullSecrets: []
 nameOverride: ""
